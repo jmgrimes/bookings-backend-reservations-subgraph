@@ -1,0 +1,52 @@
+enum ReservableDay {
+    Sunday
+    Monday
+    Tuesday
+    Wednesday
+    Thursday
+    Friday
+    Saturday
+}
+
+enum ReservableSession {
+    Breakfast
+    Morning
+    Lunch
+    Afternoon
+    Evening
+}
+
+enum ReservableType {
+    Equipment
+    Room
+}
+
+type Reservable @key(fields: "id") {
+    id: ID!
+    name: String!
+    description: String!
+    type: ReservableType!
+    days: [ReservableDay!]!
+    sessions: [ReservableSession!]
+    reservations: [Reservation!]!
+}
+
+input ReservableInput {
+    name: String!
+    description: String!
+    type: ReservableType!
+    days: [ReservableDay!]!
+    sessions: [ReservableSession!]
+}
+
+type Query {
+    reservable(id: ID!): Reservable
+    reservables(ids: [ID!]): [Reservable!]!
+    reservablesByType(type: ReservableType!): [Reservable!]!
+}
+
+type Mutation {
+    createReservable(reservable: ReservableInput!): Reservable!
+    updateReservable(id: ID!, reservable: ReservableInput!): Reservable
+    deleteReservable(id: ID!): Reservable
+}

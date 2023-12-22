@@ -1,0 +1,13 @@
+"Representation of a User of the Reservation System."
+type User @key(fields: "id") {
+    """
+    The ID value for the User.
+    Formatted as a 24 character hexadecimal ObjectId value.
+    """
+    id: ID!
+
+    """
+    The reservations for the User.
+    """
+    reservations: [Reservation!]!
+}

@@ -1,0 +1,56 @@
+name: Build Workflow
+on:
+  push:
+    branches:
+      - develop   # build pushes to develop branch
+      - main      # build pushes to main branch
+      - feature/* # build pushes to feature branches
+      - hotfix/*  # build pushes to hotfix branches
+      - release/* # build pushes to release branches
+      - support/* # build pushes to support branches
+  release:
+    types:
+      - published
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - id: checkout
+        name: Checkout Source Code
+        uses: actions/checkout@v3
+      - id: setup-qemu
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - id: setup-buildx
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - id: docker-login
+        name: Login to GitHib Packages
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: docker-metadata
+        name: Extract Metadata for Docker
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          labels:
+            org.opencontainers.image.title=Bookings Backend Reservations Subgraph
+            org.opencontainers.image.description=Backend application supporting the Reservations subgraph for the booking application.
+      - id: docker-build-push
+        name: Build Docker Image and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          tags: ${{ steps.docker-metadata.outputs.tags }}
+          labels: ${{ steps.docker-metadata.outputs.labels }}
+          push: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/tags/') }}

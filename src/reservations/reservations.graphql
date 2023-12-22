@@ -1,0 +1,29 @@
+type Reservation @key(fields: "id") {
+    id: ID!
+    title: String!
+    description: String!
+    date: String!
+    reservable: Reservable!
+    session: ReservableSession!
+    user: User!
+}
+
+input ReservationInput {
+    title: String!
+    description: String!
+    date: String!
+    reservableId: ID!
+    session: ReservableSession!
+    userId: ID!
+}
+
+type Query {
+    reservation(id: ID!): Reservation!
+    reservations(ids: [ID!]): [Reservation!]!
+}
+
+type Mutation {
+    createReservation(reservation: ReservationInput!): Reservation!
+    updateReservation(id: ID!, reservation: ReservationInput!): Reservation
+    deleteReservation(id: ID!): Reservation
+}
