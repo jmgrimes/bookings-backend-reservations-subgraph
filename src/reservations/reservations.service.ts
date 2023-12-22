@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
 import { MongoDataSource } from "apollo-datasource-mongodb"
 import { Model, Types } from "mongoose"
+
 import { ReservableSession } from "../reservables"
 
 import { Reservation, ReservationDocument } from "./reservations.schema"

@@ -1,5 +1,6 @@
 import { forwardRef, Module } from "@nestjs/common"
-import { ReservationsModule } from "../reservations"
+
+import ReservationsModule from "../reservations"
 
 import { UsersResolver } from "./users.resolver"
 
