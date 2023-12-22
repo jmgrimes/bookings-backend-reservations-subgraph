@@ -50,3 +50,8 @@ type Mutation {
     updateReservable(id: ID!, reservable: ReservableInput!): Reservable
     deleteReservable(id: ID!): Reservable
 }
+
+extend schema @link(url: "https://specs.apollo.dev/federation/v2.3", import: ["@key", "@shareable"]) {
+    query: Query
+    mutation: Mutation
+}
