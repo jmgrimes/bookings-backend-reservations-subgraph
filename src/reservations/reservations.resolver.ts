@@ -20,7 +20,11 @@ import {
   IReservationsService,
   RESERVATIONS_SERVICE,
 } from "./reservations.service"
-import { IReservation, IReservationModel } from "./reservations.model"
+import {
+  IReservation,
+  IReservationModel,
+  IReservationPayload,
+} from "./reservations.model"
 
 export class ReservationInput implements IReservationModel {
   title: string
@@ -65,24 +69,45 @@ export class ReservationsResolver {
   }
 
   @Mutation()
-  async createReservation(
+  async reservationCreate(
     @Args("reservation") reservationInput: ReservationInput,
-  ): Promise<IReservation> {
-    return this.reservationsService.create(reservationInput)
+  ): Promise<IReservationPayload> {
+    return await this.reservationsService
+      .create(reservationInput)
+      .then((reservation) => ({
+        reservation,
+      }))
+      .catch((error) => ({
+        errors: [{ message: error }],
+      }))
   }
 
   @Mutation()
-  async updateReservation(
+  async reservationUpdate(
     @Args("id") id: string,
     @Args("reservation") reservationInput: ReservationInput,
-  ): Promise<IReservation | undefined> {
-    return this.reservationsService.updateById(id, reservationInput)
+  ): Promise<IReservationPayload> {
+    return this.reservationsService
+      .updateById(id, reservationInput)
+      .then((reservation) => ({
+        reservation,
+      }))
+      .catch((error) => ({
+        errors: [{ message: error }],
+      }))
   }
 
   @Mutation()
-  async deleteReservation(
+  async reservationDelete(
     @Args("id") id: string,
-  ): Promise<IReservation | undefined> {
-    return this.reservationsService.deleteById(id)
+  ): Promise<IReservationPayload> {
+    return this.reservationsService
+      .deleteById(id)
+      .then((reservation) => ({
+        reservation,
+      }))
+      .catch((error) => ({
+        errors: [{ message: error }],
+      }))
   }
 }

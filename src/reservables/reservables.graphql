@@ -31,27 +31,27 @@ type Reservable @key(fields: "id") {
     reservations: [Reservation!]!
 }
 
+type ReservablePayload {
+    errors: [UserError!]
+    reservable: Reservable
+}
+
 input ReservableInput {
     name: String!
     description: String!
     type: ReservableType!
     days: [ReservableDay!]!
-    sessions: [ReservableSession!]
+    sessions: [ReservableSession!]!
 }
 
-type Query {
+extend type Query {
     reservable(id: ID!): Reservable
-    reservables(ids: [ID!]): [Reservable!]!
-    reservablesByType(type: ReservableType!): [Reservable!]!
+    reservables(ids: [ID!]): [Reservable!]
+    reservablesByType(type: ReservableType!): [Reservable!]
 }
 
-type Mutation {
-    createReservable(reservable: ReservableInput!): Reservable!
-    updateReservable(id: ID!, reservable: ReservableInput!): Reservable
-    deleteReservable(id: ID!): Reservable
-}
-
-extend schema @link(url: "https://specs.apollo.dev/federation/v2.3", import: ["@key", "@shareable"]) {
-    query: Query
-    mutation: Mutation
+extend type Mutation {
+    reservableCreate(reservable: ReservableInput!): ReservablePayload
+    reservableUpdate(id: ID!, reservable: ReservableInput!): ReservablePayload
+    reservableDelete(id: ID!): ReservablePayload
 }

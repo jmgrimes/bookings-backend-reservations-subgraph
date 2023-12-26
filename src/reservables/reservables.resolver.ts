@@ -18,6 +18,7 @@ import { IReservablesService, RESERVABLES_SERVICE } from "./reservables.service"
 import {
   IReservable,
   IReservableModel,
+  IReservablePayload,
   ReservableDay,
   ReservableSession,
   ReservableType,
@@ -65,24 +66,43 @@ export class ReservablesResolver {
   }
 
   @Mutation()
-  async createReservable(
+  async reservableCreate(
     @Args("reservable") reservableInput: ReservableInput,
-  ): Promise<IReservable> {
-    return this.reservablesService.create(reservableInput)
+  ): Promise<IReservablePayload> {
+    return this.reservablesService
+      .create(reservableInput)
+      .then((reservable) => ({
+        reservable,
+      }))
+      .catch((error) => ({
+        errors: [{ message: error }],
+      }))
   }
 
   @Mutation()
-  async updateReservable(
+  async reservableUpdate(
     @Args("id") id: string,
     @Args("reservable") reservableInput: ReservableInput,
-  ): Promise<IReservable | undefined> {
-    return this.reservablesService.updateById(id, reservableInput)
+  ): Promise<IReservablePayload> {
+    return this.reservablesService
+      .updateById(id, reservableInput)
+      .then((reservable) => ({
+        reservable,
+      }))
+      .catch((error) => ({
+        errors: [{ message: error }],
+      }))
   }
 
   @Mutation()
-  async deleteReservable(
-    @Args("id") id: string,
-  ): Promise<IReservable | undefined> {
-    return this.reservablesService.deleteById(id)
+  async reservableDelete(@Args("id") id: string): Promise<IReservablePayload> {
+    return this.reservablesService
+      .deleteById(id)
+      .then((reservable) => ({
+        reservable,
+      }))
+      .catch((error) => ({
+        errors: [{ message: error }],
+      }))
   }
 }

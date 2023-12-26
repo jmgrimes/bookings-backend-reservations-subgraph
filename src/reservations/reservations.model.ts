@@ -1,3 +1,4 @@
+import { IUserError } from "../commons"
 import { ReservableSession } from "../reservables"
 
 export interface IReservationModel {
@@ -11,4 +12,9 @@ export interface IReservationModel {
 
 export interface IReservation extends IReservationModel {
   id: string
+}
+
+export interface IReservationPayload {
+  errors?: IUserError[]
+  reservation?: IReservation
 }

@@ -1,3 +1,5 @@
+import { IUserError } from "../commons"
+
 export enum ReservableType {
   Equipment = "Equipment",
   Room = "Room",
@@ -31,4 +33,9 @@ export interface IReservableModel {
 
 export interface IReservable extends IReservableModel {
   id: string
+}
+
+export interface IReservablePayload {
+  errors?: IUserError[]
+  reservable?: IReservable
 }

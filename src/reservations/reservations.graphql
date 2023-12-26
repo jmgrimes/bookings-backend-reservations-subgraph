@@ -8,6 +8,11 @@ type Reservation @key(fields: "id") {
     user: User!
 }
 
+type ReservationPayload {
+    errors: [UserError!]
+    reservation: Reservation
+}
+
 input ReservationInput {
     title: String!
     description: String!
@@ -17,18 +22,13 @@ input ReservationInput {
     userId: ID!
 }
 
-type Query {
-    reservation(id: ID!): Reservation!
-    reservations(ids: [ID!]): [Reservation!]!
+extend type Query {
+    reservation(id: ID!): Reservation
+    reservations(ids: [ID!]): [Reservation!]
 }
 
-type Mutation {
-    createReservation(reservation: ReservationInput!): Reservation!
-    updateReservation(id: ID!, reservation: ReservationInput!): Reservation
-    deleteReservation(id: ID!): Reservation
-}
-
-extend schema @link(url: "https://specs.apollo.dev/federation/v2.3", import: ["@key", "@shareable"]) {
-    query: Query
-    mutation: Mutation
+extend type Mutation {
+    reservationCreate(reservation: ReservationInput!): ReservationPayload
+    reservationUpdate(id: ID!, reservation: ReservationInput!): ReservationPayload
+    reservationDelete(id: ID!): ReservationPayload
 }
