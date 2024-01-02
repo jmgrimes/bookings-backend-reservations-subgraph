@@ -6,22 +6,39 @@ import { ConfigModule, ConfigService } from "@nestjs/config"
 import { GraphQLModule } from "@nestjs/graphql"
 import { MongooseModule } from "@nestjs/mongoose"
 
-import ReservablesModule from "./reservables"
-import ReservationsModule from "./reservations"
+import ReservablesModule, {
+  IReservablesService,
+  RESERVABLES_SERVICE,
+} from "./reservables"
+import ReservationsModule, {
+  IReservationsService,
+  RESERVATIONS_SERVICE,
+} from "./reservations"
 import UsersModule from "./users"
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    GraphQLModule.forRoot<ApolloDriverConfig>({
+    GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloFederationDriver,
-      path: "/api/graphql",
-      playground: false,
-      plugins: [
-        ApolloServerPluginInlineTraceDisabled(),
-        ApolloServerPluginLandingPageLocalDefault(),
-      ],
-      typePaths: ["./**/*.graphql"],
+      imports: [ReservablesModule, ReservationsModule],
+      inject: [RESERVABLES_SERVICE, RESERVATIONS_SERVICE],
+      useFactory: async (
+        reservablesService: IReservablesService,
+        reservationsService: IReservationsService,
+      ) => ({
+        context: () => ({
+          reservablesService,
+          reservationsService,
+        }),
+        path: "/api/graphql",
+        playground: false,
+        plugins: [
+          ApolloServerPluginInlineTraceDisabled(),
+          ApolloServerPluginLandingPageLocalDefault(),
+        ],
+        typePaths: ["./**/*.graphql"],
+      }),
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],

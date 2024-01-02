@@ -1,8 +1,5 @@
-import { forwardRef, Module, Scope } from "@nestjs/common"
+import { Module, Scope } from "@nestjs/common"
 import { MongooseModule } from "@nestjs/mongoose"
-
-import ReservablesModule from "../reservables"
-import UsersModule from "../users"
 
 import { ReservationsResolver } from "./reservations.resolver"
 import { Reservation, ReservationSchema } from "./reservations.schema"
@@ -19,8 +16,6 @@ import {
         schema: ReservationSchema,
       },
     ]),
-    forwardRef(() => ReservablesModule),
-    forwardRef(() => UsersModule),
   ],
   exports: [
     {

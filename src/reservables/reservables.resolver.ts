@@ -1,6 +1,6 @@
-import { forwardRef, Inject } from "@nestjs/common"
 import {
   Args,
+  Context,
   Mutation,
   Parent,
   Query,
@@ -8,13 +8,9 @@ import {
   Resolver,
 } from "@nestjs/graphql"
 
-import {
-  IReservation,
-  IReservationsService,
-  RESERVATIONS_SERVICE,
-} from "../reservations"
+import { IReservation, IReservationsService } from "../reservations"
 
-import { IReservablesService, RESERVABLES_SERVICE } from "./reservables.service"
+import { IReservablesService } from "./reservables.service"
 import {
   IReservable,
   IReservableModel,
@@ -32,44 +28,53 @@ export class ReservableInput implements IReservableModel {
   sessions: ReservableSession[]
 }
 
+export interface IContext {
+  reservablesService: IReservablesService
+  reservationsService: IReservationsService
+}
+
 @Resolver("Reservable")
 export class ReservablesResolver {
-  constructor(
-    @Inject(forwardRef(() => RESERVABLES_SERVICE))
-    private reservablesService: IReservablesService,
-    @Inject(forwardRef(() => RESERVATIONS_SERVICE))
-    private reservationsService: IReservationsService,
-  ) {}
+  constructor() {}
 
   @ResolveField("reservations")
   async reservations(
+    @Context() context: IContext,
     @Parent() reservable: IReservable,
   ): Promise<IReservation[]> {
-    return this.reservationsService.findByReservableId(reservable.id)
+    return context.reservationsService.findByReservableId(reservable.id)
   }
 
   @Query()
-  async reservable(@Args("id") id: string): Promise<IReservable | undefined> {
-    return this.reservablesService.findById(id)
+  async reservable(
+    @Context() context: IContext,
+    @Args("id") id: string,
+  ): Promise<IReservable | undefined> {
+    return context.reservablesService.findById(id)
   }
 
   @Query()
-  async reservables(@Args("ids") ids?: string[]): Promise<IReservable[]> {
-    return this.reservablesService.findAll(ids)
+  async reservables(
+    @Context() context: IContext,
+    @Args("ids") ids?: string[],
+  ): Promise<IReservable[]> {
+    return context.reservablesService.findAll(ids)
   }
 
   @Query()
   async reservablesByType(
+    @Context() context: IContext,
     @Args("type") type: ReservableType,
   ): Promise<IReservable[]> {
-    return this.reservablesService.findByType(type)
+    return context.reservablesService.findByType(type)
   }
 
   @Mutation()
   async reservableCreate(
+    @Context() context: IContext,
     @Args("reservable") reservableInput: ReservableInput,
   ): Promise<IReservablePayload> {
-    return this.reservablesService
+    return context.reservablesService
       .create(reservableInput)
       .then((reservable) => ({
         reservable,
@@ -81,10 +86,11 @@ export class ReservablesResolver {
 
   @Mutation()
   async reservableUpdate(
+    @Context() context: IContext,
     @Args("id") id: string,
     @Args("reservable") reservableInput: ReservableInput,
   ): Promise<IReservablePayload> {
-    return this.reservablesService
+    return context.reservablesService
       .updateById(id, reservableInput)
       .then((reservable) => ({
         reservable,
@@ -95,8 +101,11 @@ export class ReservablesResolver {
   }
 
   @Mutation()
-  async reservableDelete(@Args("id") id: string): Promise<IReservablePayload> {
-    return this.reservablesService
+  async reservableDelete(
+    @Context() context: IContext,
+    @Args("id") id: string,
+  ): Promise<IReservablePayload> {
+    return context.reservablesService
       .deleteById(id)
       .then((reservable) => ({
         reservable,

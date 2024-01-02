@@ -1,25 +1,21 @@
-import { forwardRef, Inject } from "@nestjs/common"
 import {
   Args,
+  Context,
   Mutation,
   Parent,
   Query,
   ResolveField,
   Resolver,
-} from "@nestjs/graphql"
+} from "@nestjs/graphql";
 
 import {
   IReservable,
   IReservablesService,
   ReservableSession,
-  RESERVABLES_SERVICE,
 } from "../reservables"
 import { IUser } from "../users"
 
-import {
-  IReservationsService,
-  RESERVATIONS_SERVICE,
-} from "./reservations.service"
+import { IReservationsService } from "./reservations.service"
 import {
   IReservation,
   IReservationModel,
@@ -35,20 +31,21 @@ export class ReservationInput implements IReservationModel {
   userId: string
 }
 
+export interface IContext {
+  reservablesService: IReservablesService
+  reservationsService: IReservationsService
+}
+
 @Resolver("Reservation")
 export class ReservationsResolver {
-  constructor(
-    @Inject(forwardRef(() => RESERVATIONS_SERVICE))
-    private reservationsService: IReservationsService,
-    @Inject(forwardRef(() => RESERVABLES_SERVICE))
-    private reservablesService: IReservablesService,
-  ) {}
+  constructor() {}
 
   @ResolveField("reservable")
   async reservable(
+    @Context() context: IContext,
     @Parent() reservation: IReservation,
   ): Promise<IReservable | undefined> {
-    return this.reservablesService.findById(reservation.reservableId)
+    return context.reservablesService.findById(reservation.reservableId)
   }
 
   @ResolveField("user")
@@ -59,20 +56,27 @@ export class ReservationsResolver {
   }
 
   @Query()
-  async reservation(@Args("id") id: string): Promise<IReservation | undefined> {
-    return this.reservationsService.findById(id)
+  async reservation(
+    @Context() context: IContext,
+    @Args("id") id: string,
+  ): Promise<IReservation | undefined> {
+    return context.reservationsService.findById(id)
   }
 
   @Query()
-  async reservations(@Args("ids") ids?: string[]): Promise<IReservation[]> {
-    return this.reservationsService.findAll(ids)
+  async reservations(
+    @Context() context: IContext,
+    @Args("ids") ids?: string[],
+  ): Promise<IReservation[]> {
+    return context.reservationsService.findAll(ids)
   }
 
   @Mutation()
   async reservationCreate(
+    @Context() context: IContext,
     @Args("reservation") reservationInput: ReservationInput,
   ): Promise<IReservationPayload> {
-    return await this.reservationsService
+    return await context.reservationsService
       .create(reservationInput)
       .then((reservation) => ({
         reservation,
@@ -84,10 +88,11 @@ export class ReservationsResolver {
 
   @Mutation()
   async reservationUpdate(
+    @Context() context: IContext,
     @Args("id") id: string,
     @Args("reservation") reservationInput: ReservationInput,
   ): Promise<IReservationPayload> {
-    return this.reservationsService
+    return context.reservationsService
       .updateById(id, reservationInput)
       .then((reservation) => ({
         reservation,
@@ -99,9 +104,10 @@ export class ReservationsResolver {
 
   @Mutation()
   async reservationDelete(
+    @Context() context: IContext,
     @Args("id") id: string,
   ): Promise<IReservationPayload> {
-    return this.reservationsService
+    return context.reservationsService
       .deleteById(id)
       .then((reservation) => ({
         reservation,

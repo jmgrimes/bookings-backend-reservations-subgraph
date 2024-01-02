@@ -1,5 +1,5 @@
 import { forwardRef, Inject } from "@nestjs/common"
-import { Parent, ResolveField, Resolver } from "@nestjs/graphql"
+import { Context, Parent, ResolveField, Resolver } from "@nestjs/graphql"
 
 import {
   IReservation,
@@ -9,6 +9,10 @@ import {
 
 import { IUser } from "./users.model"
 
+export interface IContext {
+  reservationsService: IReservationsService
+}
+
 @Resolver("User")
 export class UsersResolver {
   constructor(
@@ -17,7 +21,10 @@ export class UsersResolver {
   ) {}
 
   @ResolveField("reservations")
-  async reservations(@Parent() user: IUser): Promise<IReservation[]> {
-    return this.reservationsService.findByUserId(user.id)
+  async reservations(
+    @Context() context: IContext,
+    @Parent() user: IUser,
+  ): Promise<IReservation[]> {
+    return context.reservationsService.findByUserId(user.id)
   }
 }
